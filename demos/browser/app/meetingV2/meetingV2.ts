@@ -217,6 +217,7 @@ export class DemoMeetingApp
   activeSpeakerLayout = true;
   meeting: string | null = null;
   name: string | null = null;
+  password: string | null = null;
   voiceConnectorId: string | null = null;
   sipURI: string | null = null;
   region: string | null = null;
@@ -395,6 +396,7 @@ export class DemoMeetingApp
       this.meeting = (document.getElementById('inputMeeting') as HTMLInputElement).value;
       this.name = (document.getElementById('inputName') as HTMLInputElement).value;
       this.region = (document.getElementById('inputRegion') as HTMLInputElement).value;
+      this.password = (document.getElementById('inputPassword') as HTMLInputElement).value;
       this.enableSimulcast = (document.getElementById('simulcast') as HTMLInputElement).checked;
       if (this.enableSimulcast) {
         const videoInputQuality = document.getElementById(
@@ -496,12 +498,13 @@ export class DemoMeetingApp
           this.showProgress('progress-authenticate');
           const region = this.region || 'us-east-1';
           try {
+            const payload = `${DemoMeetingApp.BASE_URL}join?title=${encodeURIComponent(
+              this.meeting
+            )}&name=${encodeURIComponent(DemoMeetingApp.DID)}&region=${encodeURIComponent(
+              region
+            )}&password=${encodeURIComponent(this.password)}`;
             const response = await fetch(
-              `${DemoMeetingApp.BASE_URL}join?title=${encodeURIComponent(
-                this.meeting
-              )}&name=${encodeURIComponent(DemoMeetingApp.DID)}&region=${encodeURIComponent(
-                region
-              )}`,
+              payload,
               {
                 method: 'POST',
               }
@@ -1406,10 +1409,11 @@ export class DemoMeetingApp
 
   // eslint-disable-next-line
   async joinMeeting(): Promise<any> {
+    let payload = `${DemoMeetingApp.BASE_URL}join?title=${encodeURIComponent(
+      this.meeting
+    )}&name=${encodeURIComponent(this.name)}&region=${encodeURIComponent(this.region)}&password=${encodeURIComponent(this.password)}`;
     const response = await fetch(
-      `${DemoMeetingApp.BASE_URL}join?title=${encodeURIComponent(
-        this.meeting
-      )}&name=${encodeURIComponent(this.name)}&region=${encodeURIComponent(this.region)}`,
+      payload,
       {
         method: 'POST',
       }

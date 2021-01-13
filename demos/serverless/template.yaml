@@ -187,6 +187,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref Meetings
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Books
       Environment:
         Variables:
           USE_EVENT_BRIDGE: !Ref UseEventBridge
