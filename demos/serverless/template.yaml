@@ -229,6 +229,9 @@ Resources:
     Properties:
       Handler: handlers.event_bridge_handler
       CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Meetings
       Events:
         ChimeEventBridgeEvent:
           Type: CloudWatchEvent

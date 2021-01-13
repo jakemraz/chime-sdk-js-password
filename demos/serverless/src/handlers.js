@@ -208,6 +208,14 @@ exports.sqs_handler = async (event, context, callback) => {
 // Called when EventBridge receives a meeting event and logs out the event
 exports.event_bridge_handler = async (event, context, callback) => {
   console.log(event);
+
+  if (event.source !== 'aws.chime')
+    return {};
+
+  if (event.detail.eventType === 'chime:MeetingEnded') {
+    await removeMeeting(event.detail.externalMeetingId);
+  }
+
   return {};
 }
 
@@ -281,6 +289,16 @@ async function putMeeting(title, meeting) {
       'TTL': {
         N: `${Math.floor(Date.now() / 1000) + 60 * 60 * 24}` // clean up meeting record one day from now
       }
+    }
+  }).promise();
+}
+
+// Removes the meeting item in the table using the title as the key
+async function removeMeeting(title) {
+  return await ddb.deleteItem({
+    TableName: MEETINGS_TABLE_NAME,
+    Key: {
+      'Title': { S: title }
     }
   }).promise();
 }
