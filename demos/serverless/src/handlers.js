@@ -18,6 +18,7 @@ chime.endpoint = new AWS.Endpoint(process.env.CHIME_ENDPOINT);
 
 // Read resource names from the environment
 const {
+  BOOKS_TABLE_NAME,
   MEETINGS_TABLE_NAME,
   BROWSER_LOG_GROUP_NAME,
   BROWSER_MEETING_EVENT_LOG_GROUP_NAME,
@@ -31,6 +32,21 @@ exports.index = async (event, context, callback) => {
   // Return the contents of the index page
   return response(200, 'text/html', fs.readFileSync('./index.html', {encoding: 'utf8'}));
 };
+
+exports.book = async(event, context) => {
+  console.log(event);
+
+  let body = JSON.parse(event.body);
+
+	if (!body.Title || !body.Password || !body.StartTime || !body.EndTime) {
+		return response(400, 'application/json', JSON.stringify({error: 'Need parameters: BookId, Title, Password, StartTime, EndTime'}));
+	}
+
+  let bookId = uuidv4();
+  await putBook(bookId, body.Title, body.Password, body.StartTime, body.EndTime)
+
+	return response(200, 'application/json', JSON.stringify({BookId: bookId}));
+}
 
 exports.join = async(event, context) => {
   const query = event.queryStringParameters;
@@ -165,6 +181,20 @@ exports.create_browser_event_log_stream = async event => {
 }
 
 // === Helpers ===
+
+// Stores the book in the table using the BookId as the key
+async function putBook(bookId, title, password, startTime, endTime) {
+  return await ddb.putItem({
+    TableName: BOOKS_TABLE_NAME,
+    Item: {
+      'BookId': { S: bookId },
+      'Title': { S: title },
+      'Password': { S: password },
+      'StartTime': { N: startTime },
+      'EndTime': { N: endTime }
+    }
+  }).promise();
+}
 
 // Retrieves the meeting from the table by the meeting title
 async function getMeeting(title) {

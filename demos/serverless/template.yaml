@@ -20,6 +20,7 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
+        BOOKS_TABLE_NAME: !Ref Books
         MEETINGS_TABLE_NAME: !Ref Meetings
         SQS_QUEUE_ARN: !GetAtt MeetingNotificationsQueue.Arn
         BROWSER_LOG_GROUP_NAME: !Ref ChimeBrowserLogs
@@ -133,6 +134,21 @@ Resources:
           Properties:
             Path: /
             Method: GET
+  ChimeSdkBookLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handlers.book
+      Runtime: nodejs10.x
+      CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Books
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /book
+            Method: POST
   ChimeSdkJoinLambda:
     Type: AWS::Serverless::Function
     Properties:
