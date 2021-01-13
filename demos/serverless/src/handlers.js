@@ -34,12 +34,11 @@ exports.index = async (event, context, callback) => {
 };
 
 exports.book = async(event, context) => {
-  console.log(event);
-
+  //console.log(event);
   let body = JSON.parse(event.body);
 
 	if (!body.Title || !body.Password || !body.StartTime || !body.EndTime) {
-		return response(400, 'application/json', JSON.stringify({error: 'Need parameters: BookId, Title, Password, StartTime, EndTime'}));
+		return response(400, 'application/json', JSON.stringify({error: 'Need parameters: Title, Password, StartTime, EndTime'}));
 	}
 
   let bookId = uuidv4();
