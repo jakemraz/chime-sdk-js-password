@@ -149,6 +149,21 @@ Resources:
           Properties:
             Path: /book
             Method: POST
+  ChimeSdkRemoveLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handlers.remove
+      Runtime: nodejs10.x
+      CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Books
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /remove
+            Method: POST
   ChimeSdkJoinLambda:
     Type: AWS::Serverless::Function
     Properties:

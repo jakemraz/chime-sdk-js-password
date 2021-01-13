@@ -47,6 +47,19 @@ exports.book = async(event, context) => {
 	return response(200, 'application/json', JSON.stringify({BookId: bookId}));
 }
 
+exports.remove = async(event, conext) => {
+  let body = JSON.parse(event.body);
+
+  if (!body.BookId) {
+    return response(400, 'application/json', JSON.stringify({error: 'Need parameters: BookId'}));
+  }
+
+  let bookId = body.BookId;
+  await removeBook(bookId);
+
+  return response(200, 'application/json', JSON.stringify({}));
+}
+
 exports.join = async(event, context) => {
   const query = event.queryStringParameters;
   if (!query.title || !query.name || !query.region) {
@@ -191,6 +204,16 @@ async function putBook(bookId, title, password, startTime, endTime) {
       'Password': { S: password },
       'StartTime': { N: String(startTime) },
       'EndTime': { N: String(endTime) }
+    }
+  }).promise();
+}
+
+// Removes the book item in the table using the BookId as the key
+async function removeBook(bookId) {
+  return await ddb.deleteItem({
+    TableName: BOOKS_TABLE_NAME,
+    Key: {
+      'BookId': { S: bookId }
     }
   }).promise();
 }
