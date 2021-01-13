@@ -190,8 +190,8 @@ async function putBook(bookId, title, password, startTime, endTime) {
       'BookId': { S: bookId },
       'Title': { S: title },
       'Password': { S: password },
-      'StartTime': { N: startTime },
-      'EndTime': { N: endTime }
+      'StartTime': { N: String(startTime) },
+      'EndTime': { N: String(endTime) }
     }
   }).promise();
 }
