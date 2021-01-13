@@ -47,6 +47,27 @@ exports.book = async(event, context) => {
 	return response(200, 'application/json', JSON.stringify({BookId: bookId}));
 }
 
+exports.edit = async(event, context) => {
+  let body = JSON.parse(event.body);
+	if (!body) {
+		return response(400, 'application/json', JSON.stringify({error: 'Need parameters: BookId, Title, Password, StartTime, EndTime'}));
+  }
+
+  let book = await getBook(body.BookId);
+  let password = book.Password.S;
+  if (body.Password !== password) {
+    return response(400, 'application/json', JSON.stringify({error: 'Fail: Bad Password'}));
+  }
+
+  let cur = Math.floor(Date.now() / 1000);
+  if (book.StartTime.N - cur < 60 * 10)
+    return response(400, 'application/json', JSON.stringify({error: 'Fail: The meeting starts in 10 minutes or already started'}));
+
+  await putBook(body.BookId, body.Title, body.Password, body.StartTime, body.EndTime)
+
+	return response(200, 'application/json', JSON.stringify({}));
+}
+
 exports.remove = async(event, conext) => {
   let body = JSON.parse(event.body);
 
@@ -206,6 +227,19 @@ async function putBook(bookId, title, password, startTime, endTime) {
       'EndTime': { N: String(endTime) }
     }
   }).promise();
+}
+
+async function getBook(bookId) {
+  console.log(bookId);
+  const result = await ddb.getItem({
+    TableName: BOOKS_TABLE_NAME,
+    Key: {
+      'BookId': {
+        S: bookId
+      }
+    }
+  }).promise();
+  return result.Item ? result.Item : null;
 }
 
 // Removes the book item in the table using the BookId as the key

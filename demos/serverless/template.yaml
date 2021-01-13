@@ -164,6 +164,21 @@ Resources:
           Properties:
             Path: /remove
             Method: POST
+  ChimeSdkEditLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handlers.edit
+      Runtime: nodejs10.x
+      CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Books
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /edit
+            Method: POST
   ChimeSdkJoinLambda:
     Type: AWS::Serverless::Function
     Properties:
