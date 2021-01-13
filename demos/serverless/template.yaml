@@ -104,6 +104,19 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: "TTL"
         Enabled: true
+  Books:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "BookId"
+          AttributeType: "S"
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: "BookId"
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: "EndDate"
+        Enabled: true
   MeetingNotificationsQueue:
     Type: AWS::SQS::Queue
     Properties:
